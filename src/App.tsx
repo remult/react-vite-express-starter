@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { remult } from "remult";
+import { Remult, remult } from "remult";
 import { Task } from "./shared/Task";
 import { TasksController } from "./shared/TasksController";
 import { observer } from "mobx-react-lite";
-import { action, makeAutoObservable, observable, runInAction } from 'mobx';
+import { action, makeAutoObservable, observable, runInAction, createAtom } from 'mobx';
 
 
-
+Remult.entityRefInit = (ref, row) => ref.subscribe(createAtom("entity"));
 
 class Store {
   taskRepo = remult.repo(Task);
@@ -16,7 +16,7 @@ class Store {
     makeAutoObservable(this);
   }
   replaceTasks(t: Task[]) {
-    this.tasks.replace(t.map(t => makeAutoObservable({ ...t })));
+    this.tasks.replace(t);
   }
   async loadTasks() {
     this.replaceTasks(await
@@ -27,7 +27,7 @@ class Store {
       }));
   }
   addTask() {
-    this.tasks.push(makeAutoObservable(new Task()))
+    this.tasks.push(this.taskRepo.create())
   }
   async saveTask(task: Task) {
     try {
@@ -50,7 +50,6 @@ const store = new Store();
 
 function App() {
   return <Todo store={store} />
-
 }
 const Todo: React.FC<{ store: Store }> = observer(({ store }) => {
   useEffect(() => {
@@ -68,13 +67,13 @@ const Todo: React.FC<{ store: Store }> = observer(({ store }) => {
             <div key={task.id}>
               <input type="checkbox"
                 checked={task.completed}
-                onChange={action(e => {
+                onChange={(e => {
                   const prev = task.completed;
                   task.completed = e.target.checked;
                 })} />
               <input
                 value={task.title}
-                onChange={action(e => task.title = e.target.value)} />
+                onChange={(e => task.title = e.target.value)} />
               <button onClick={() => store.saveTask(task)}>Save</button>
               <button onClick={() => store.deleteTask(task)}>Delete</button>
             </div>
