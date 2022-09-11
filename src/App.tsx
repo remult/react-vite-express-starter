@@ -14,6 +14,9 @@ class Store {
   hideCompleted = false;
   constructor() {
     makeAutoObservable(this);
+    this.taskRepo.addEventListener({
+      deleted: action(task => this.tasks.remove(task))
+    });
   }
   replaceTasks(t: Task[]) {
     this.tasks.replace(t);
@@ -28,18 +31,6 @@ class Store {
   }
   addTask() {
     this.tasks.push(this.taskRepo.create())
-  }
-  async saveTask(task: Task) {
-    try {
-      const savedTask = await this.taskRepo.save(task);
-      runInAction(() => store.tasks[store.tasks.indexOf(task)] = savedTask);
-    } catch (error: any) {
-      alert(error.message);
-    }
-  }
-  async deleteTask(task: Task) {
-    await this.taskRepo.delete(task);
-    runInAction(() => store.tasks.remove(task));
   }
   async setAll(completed: boolean) {
     await TasksController.setAll(completed);
@@ -74,8 +65,15 @@ const Todo: React.FC<{ store: Store }> = observer(({ store }) => {
               <input
                 value={task.title}
                 onChange={(e => task.title = e.target.value)} />
-              <button onClick={() => store.saveTask(task)}>Save</button>
-              <button onClick={() => store.deleteTask(task)}>Delete</button>
+              <button onClick={async () => {
+                try {
+                  await task.save();
+                } catch (error: any) {
+                  alert(error.message);
+                }
+              }}>Save</button>
+              <button onClick={() => task.delete()}>Delete</button>
+              <span>{task.$.title.error}</span>
             </div>
           );
         })}
