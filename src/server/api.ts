@@ -7,7 +7,7 @@ import { createPostgresConnection } from "remult/postgres";
 export const api = remultExpress({
     dataProvider: process.env["NODE_ENV"] === "production" ?
         createPostgresConnection({
-            configuration: "heroku"
+            connectionString: process.env['DATABASE_URL']
         }) : undefined,
     getUser: request => request.session!['user'],
     entities: [Task],
