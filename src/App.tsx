@@ -10,13 +10,13 @@ import { action, makeAutoObservable, observable, runInAction } from 'mobx';
 
 class Store {
   taskRepo = remult.repo(Task);
-  readonly tasks = observable<Task>([]);
+  tasks: Task[] = [];
   hideCompleted = false;
   constructor() {
     makeAutoObservable(this);
   }
-  replaceTasks(t: Task[]) {
-    this.tasks.replace(t.map(t => makeAutoObservable({ ...t })));
+  replaceTasks(tasks: Task[]) {
+    this.tasks = tasks;
   }
   async loadTasks() {
     this.replaceTasks(await
@@ -27,7 +27,7 @@ class Store {
       }));
   }
   addTask() {
-    this.tasks.push(makeAutoObservable(new Task()))
+    this.tasks.push(new Task())
   }
   async saveTask(task: Task) {
     try {
@@ -39,7 +39,7 @@ class Store {
   }
   async deleteTask(task: Task) {
     await this.taskRepo.delete(task);
-    runInAction(() => store.tasks.remove(task));
+    runInAction(() => this.tasks = this.tasks.filter(t => t !== task));
   }
   async setAll(completed: boolean) {
     await TasksController.setAll(completed);
@@ -68,24 +68,21 @@ const Todo: React.FC<{ store: Store }> = observer(({ store }) => {
             <div key={task.id}>
               <input type="checkbox"
                 checked={task.completed}
-                onChange={action(e => {
-                  const prev = task.completed;
-                  task.completed = e.target.checked;
-                })} />
+                onChange={action(e => task.completed = e.target.checked)} />
               <input
                 value={task.title}
                 onChange={action(e => task.title = e.target.value)} />
-              <button onClick={() => store.saveTask(task)}>Save</button>
-              <button onClick={() => store.deleteTask(task)}>Delete</button>
+              <button type="button" onClick={() => store.saveTask(task)}>Save</button>
+              <button type="button" onClick={() => store.deleteTask(task)}>Delete</button>
             </div>
           );
         })}
 
       </main>
-      <button onClick={() => store.addTask()}>Add Task</button>
+      <button type="button" onClick={() => store.addTask()}>Add Task</button>
       <div>
-        <button onClick={() => store.setAll(true)}>Set all as completed</button>
-        <button onClick={() => store.setAll(false)}>Set all as uncompleted</button>
+        <button type="button" onClick={() => store.setAll(true)}>Set all as completed</button>
+        <button type="button" onClick={() => store.setAll(false)}>Set all as uncompleted</button>
       </div>
 
     </div>
