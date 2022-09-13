@@ -32,8 +32,7 @@ export class Store {
   }
   async saveTask(task: Task) {
     try {
-      const savedTask = await task.save();
-      runInAction(() => store.tasks[store.tasks.indexOf(task)] = savedTask);
+      await task.save();
     } catch (error: any) {
       alert(error.message);
     }

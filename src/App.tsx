@@ -27,6 +27,7 @@ const App = observer(() => {
                 onChange={e => task.title = e.target.value} />
               <button type="button" onClick={() => store.saveTask(task)}>Save</button>
               <button type="button" onClick={() => task.delete()}>Delete</button>
+              <span>{task.$.title.error}</span>
             </div>
           );
         })}
