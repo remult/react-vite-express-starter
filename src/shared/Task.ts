@@ -1,3 +1,4 @@
+import { makeAutoObservable } from "mobx";
 import { Allow, Entity, Fields, Validators } from "remult";
 import { Roles } from "./Roles";
 
@@ -8,6 +9,9 @@ import { Roles } from "./Roles";
       allowApiDelete: Roles.admin
 })
 export class Task {
+      constructor(){
+         makeAutoObservable(this);
+      }
       @Fields.uuid()
       id!: string;
 
