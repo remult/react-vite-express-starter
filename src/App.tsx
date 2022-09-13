@@ -1,48 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Remult, remult } from "remult";
-import { Task } from "./shared/Task";
-import { TasksController } from "./shared/TasksController";
+import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { action, makeAutoObservable, observable, runInAction, createAtom } from 'mobx';
+import { action } from 'mobx';
+import { Store } from "./Store";
 
+export const store = new Store();
 
-Remult.entityRefInit = (ref, row) => ref.subscribe(createAtom("entity"));
-
-class Store {
-  taskRepo = remult.repo(Task);
-  readonly tasks = observable<Task>([]);
-  hideCompleted = false;
-  constructor() {
-    makeAutoObservable(this);
-    this.taskRepo.addEventListener({
-      deleted: action(task => this.tasks.remove(task))
-    });
-  }
-  replaceTasks(t: Task[]) {
-    this.tasks.replace(t);
-  }
-  async loadTasks() {
-    this.replaceTasks(await
-      this.taskRepo.find({
-        limit: 20,
-        orderBy: { completed: "asc" },
-        where: { completed: this.hideCompleted ? false : undefined }
-      }));
-  }
-  addTask() {
-    this.tasks.push(this.taskRepo.create())
-  }
-  async setAll(completed: boolean) {
-    await TasksController.setAll(completed);
-    this.loadTasks();
-  }
-}
-const store = new Store();
-
-function App() {
-  return <Todo store={store} />
-}
-const Todo: React.FC<{ store: Store }> = observer(({ store }) => {
+const App = observer(() => {
   useEffect(() => {
     store.loadTasks()
   }, [store.hideCompleted]);
@@ -58,36 +21,23 @@ const Todo: React.FC<{ store: Store }> = observer(({ store }) => {
             <div key={task.id}>
               <input type="checkbox"
                 checked={task.completed}
-                onChange={(e => {
-                  const prev = task.completed;
-                  task.completed = e.target.checked;
-                })} />
+                onChange={action(e => task.completed = e.target.checked)} />
               <input
                 value={task.title}
-                onChange={(e => task.title = e.target.value)} />
-              <button onClick={async () => {
-                try {
-                  await task.save();
-                } catch (error: any) {
-                  alert(error.message);
-                }
-              }}>Save</button>
-              <button onClick={() => task.delete()}>Delete</button>
-              <span>{task.$.title.error}</span>
+                onChange={action(e => task.title = e.target.value)} />
+              <button type="button" onClick={() => store.saveTask(task)}>Save</button>
+              <button type="button" onClick={() => store.deleteTask(task)}>Delete</button>
             </div>
           );
         })}
-
       </main>
-      <button onClick={() => store.addTask()}>Add Task</button>
+      <button type="button" onClick={() => store.addTask()}>Add Task</button>
       <div>
-        <button onClick={() => store.setAll(true)}>Set all as completed</button>
-        <button onClick={() => store.setAll(false)}>Set all as uncompleted</button>
+        <button type="button" onClick={() => store.setAll(true)}>Set all as completed</button>
+        <button type="button" onClick={() => store.setAll(false)}>Set all as uncompleted</button>
       </div>
-
     </div>
   );
 });
-
 
 export default App;
