@@ -1,5 +1,4 @@
-import { makeAutoObservable } from "mobx";
-import { Allow, Entity, Fields, Validators } from "remult";
+import { Allow, Entity, EntityBase, Fields, Validators } from "remult";
 import { Roles } from "./Roles";
 
 @Entity<Task>("tasks", {
@@ -8,10 +7,7 @@ import { Roles } from "./Roles";
       allowApiInsert: Roles.admin,
       allowApiDelete: Roles.admin
 })
-export class Task {
-      constructor(){
-         makeAutoObservable(this);
-      }
+export class Task extends EntityBase {
       @Fields.uuid()
       id!: string;
 
