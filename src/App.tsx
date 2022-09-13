@@ -21,12 +21,12 @@ const App = observer(() => {
             <div key={task.id}>
               <input type="checkbox"
                 checked={task.completed}
-                onChange={action(e => task.completed = e.target.checked)} />
+                onChange={e => task.completed = e.target.checked} />
               <input
                 value={task.title}
-                onChange={action(e => task.title = e.target.value)} />
+                onChange={e => task.title = e.target.value} />
               <button type="button" onClick={() => store.saveTask(task)}>Save</button>
-              <button type="button" onClick={() => store.deleteTask(task)}>Delete</button>
+              <button type="button" onClick={() => task.delete()}>Delete</button>
             </div>
           );
         })}

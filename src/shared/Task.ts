@@ -1,5 +1,3 @@
-
-import { makeAutoObservable } from "mobx";
 import { Allow, Entity, EntityBase, Fields, Validators } from "remult";
 import { Roles } from "./Roles";
 
@@ -9,18 +7,13 @@ import { Roles } from "./Roles";
       allowApiInsert: Roles.admin,
       allowApiDelete: Roles.admin
 })
-
 export class Task extends EntityBase {
-      constructor(){
-         super();
-         makeAutoObservable(this);
-      }
       @Fields.uuid()
       id!: string;
 
       @Fields.string({
-            validate: Validators.required,
-            allowApiUpdate: Roles.admin
+         validate: Validators.required,
+         allowApiUpdate: Roles.admin
       })
       title = '';
 

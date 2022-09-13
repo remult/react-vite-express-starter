@@ -1,8 +1,11 @@
-import { remult } from "remult";
+import { Remult, remult } from "remult";
 import { Task } from "./shared/Task";
 import { TasksController } from "./shared/TasksController";
-import { makeAutoObservable, runInAction } from 'mobx';
+import { action, createAtom, makeAutoObservable, runInAction } from 'mobx';
 import { store } from "./App";
+
+// Make all remult entities observable mobx items
+Remult.entityRefInit = (ref, row) => ref.subscribe(createAtom("entity"));
 
 export class Store {
   taskRepo = remult.repo(Task);
@@ -10,6 +13,9 @@ export class Store {
   hideCompleted = false;
   constructor() {
     makeAutoObservable(this);
+    this.taskRepo.addEventListener({
+      deleted: action(task => this.tasks = this.tasks.filter(t => t != task))
+    });
   }
   replaceTasks(tasks: Task[]) {
     this.tasks = tasks;
@@ -22,19 +28,15 @@ export class Store {
     }));
   }
   addTask() {
-    this.tasks.push(new Task());
+    this.tasks.push(this.taskRepo.create());
   }
   async saveTask(task: Task) {
     try {
-      const savedTask = await this.taskRepo.save(task);
+      const savedTask = await task.save();
       runInAction(() => store.tasks[store.tasks.indexOf(task)] = savedTask);
     } catch (error: any) {
       alert(error.message);
     }
-  }
-  async deleteTask(task: Task) {
-    await this.taskRepo.delete(task);
-    runInAction(() => this.tasks = this.tasks.filter(t => t !== task));
   }
   async setAll(completed: boolean) {
     await TasksController.setAll(completed);
