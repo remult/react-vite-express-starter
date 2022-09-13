@@ -5,7 +5,6 @@ import { Store } from "./Store";
 
 export const store = new Store();
 
-
 const App = observer(() => {
   useEffect(() => {
     store.loadTasks()
@@ -40,6 +39,5 @@ const App = observer(() => {
     </div>
   );
 });
-
 
 export default App;
