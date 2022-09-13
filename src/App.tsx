@@ -52,7 +52,7 @@ function App() {
   return <Todo store={store} />
 
 }
-const Todo: React.FC<{ store: Store }> = observer(({ store }) => {
+const Todo = observer(({ store }: { store: Store }) => {
   useEffect(() => {
     store.loadTasks()
   }, [store.hideCompleted]);
