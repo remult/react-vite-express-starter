@@ -6,8 +6,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import sslRedirect from 'heroku-ssl-redirect';
 import path from 'path';
-import csrf from "csurf";
-import cookieParser from "cookie-parser";
+import csurf from "csurf";
 
 const app = express();
 app.use(session({
@@ -16,9 +15,8 @@ app.use(session({
 app.use(sslRedirect());
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
-app.use("/api", cookieParser());
 app.use(auth);
-app.use('/api', csrf({ cookie: true }));
+app.use('/api', csurf());
 app.use("/api", (req, res, next) => {
     res.cookie("XSRF-TOKEN", req.csrfToken());
     next();
