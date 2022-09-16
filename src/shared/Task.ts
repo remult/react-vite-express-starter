@@ -1,22 +1,22 @@
-import { Allow, Entity, Fields, Validators } from "remult";
+import { Allow, describeClass, Entity, Fields, Validators } from "remult";
 import { Roles } from "./Roles";
 
-@Entity<Task>("tasks", {
+export class Task {
+      id!: string;
+      title = '';
+      completed = false;
+}
+
+describeClass(Task, Entity<Task>("tasks", {
       allowApiRead: Allow.authenticated,
       allowApiUpdate: Allow.authenticated,
       allowApiInsert: Roles.admin,
       allowApiDelete: Roles.admin
+}), {
+      id: Fields.uuid(),
+      title: Fields.string({
+            validate: Validators.required,
+            allowApiUpdate: Roles.admin
+      }),
+      completed: Fields.boolean()
 })
-export class Task {
-      @Fields.uuid()
-      id!: string;
-
-      @Fields.string({
-         validate: Validators.required,
-         allowApiUpdate: Roles.admin
-      })
-      title = '';
-
-      @Fields.boolean()
-      completed = false;
-}
