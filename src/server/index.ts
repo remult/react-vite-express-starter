@@ -7,10 +7,33 @@ import compression from 'compression';
 import sslRedirect from 'heroku-ssl-redirect';
 import path from 'path';
 import csurf from "csurf";
+import cors from 'cors';
 
 const app = express();
-app.use(session({
-    secret: process.env['TOKEN_SIGN_KEY'] || "my secret"
+// https://www.codeconcisely.com/posts/how-to-set-up-cors-and-cookie-session-in-express/
+if (process.env["NODE_ENV"] === "production") {
+    app.use(session({
+        secret: process.env['TOKEN_SIGN_KEY'],
+        sameSite: 'none',
+        secure: true
+    }));
+}
+else {//dev
+    app.use(session({
+        secret: 'my secret',
+        sameSite: false,
+        secure: false,
+        httpOnly: false
+    }));
+
+}
+app.use(cors({
+    origin: [
+        'http://127.0.0.1:5173', // local vite dev server
+        'http://127.0.0.1:3002', //local node express server
+        'https://still-peak-52201.herokuapp.com' //production site for the app
+    ],
+    credentials: true
 }));
 app.use(sslRedirect());
 app.use(helmet({ contentSecurityPolicy: false }));

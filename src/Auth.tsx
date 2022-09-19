@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { UserInfo } from "remult";
+import { API_URL } from "./api-url";
 
 const Auth: React.FC<{ children: JSX.Element }> = ({ children }) => {
     const [signInUsername, setSignInUsername] = useState("");
     const [currentUser, setCurrentUser] = useState<UserInfo>();
 
     const signIn = async () => {
-        const result = await fetch('/api/signIn', {
+        const result = await fetch(API_URL + '/signIn', {
             method: "POST",
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -20,13 +22,16 @@ const Auth: React.FC<{ children: JSX.Element }> = ({ children }) => {
         else alert(await result.json());
     }
     const signOut = async () => {
-        await fetch('/api/signOut', {
-            method: "POST"
+        await fetch(API_URL + '/signOut', {
+            method: "POST",
+            credentials: 'include'
         });
         setCurrentUser(undefined);
     }
     useEffect(() => {
-        fetch('/api/currentUser').then(r => r.json())
+        fetch(API_URL + '/currentUser', {
+            credentials: 'include'
+        }).then(r => r.json())
             .then(async currentUserFromServer => {
                 setCurrentUser(currentUserFromServer)
             });
