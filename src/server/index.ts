@@ -10,7 +10,7 @@ import csurf from "csurf";
 
 const app = express();
 app.use(session({
-    secret: process.env['TOKEN_SIGN_KEY'] || "my secret"
+    secret: process.env['SESSION_SECRET'] || "my secret"
 }));
 app.use(sslRedirect());
 app.use(helmet({ contentSecurityPolicy: false }));
