@@ -21,6 +21,7 @@ if (process.env["NODE_ENV"] === "production") {
         sameSite: 'none',
         secure: true
     })));
+    app.enable('trust proxy');
 }
 else {//dev
     app.use(session(myLog({
