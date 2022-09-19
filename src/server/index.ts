@@ -13,7 +13,7 @@ const app = express();
 // https://www.codeconcisely.com/posts/how-to-set-up-cors-and-cookie-session-in-express/
 if (process.env["NODE_ENV"] === "production") {
     app.use(session({
-        secret: process.env['TOKEN_SIGN_KEY'],
+        secret: process.env['SESSION_SECRET'],
         sameSite: 'none',
         secure: true
     }));
