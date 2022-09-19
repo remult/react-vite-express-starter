@@ -10,22 +10,25 @@ import csurf from "csurf";
 import cors from 'cors';
 
 const app = express();
+
+console.log({
+    env: process.env
+})
 // https://www.codeconcisely.com/posts/how-to-set-up-cors-and-cookie-session-in-express/
 if (process.env["NODE_ENV"] === "production") {
-    app.use(session({
+    app.use(myLog(session({
         secret: process.env['SESSION_SECRET'],
         sameSite: 'none',
         secure: true
-    }));
+    })));
 }
 else {//dev
-    app.use(session({
+    app.use(session(myLog({
         secret: 'my secret',
         sameSite: false,
         secure: false,
         httpOnly: false
-    }));
-
+    })));
 }
 app.use(cors({
     origin: [
@@ -51,3 +54,8 @@ app.get('/*', function (_, res) {
 });
 
 app.listen(process.env["PORT"] || 3002, () => console.log("Server started"));
+
+function myLog<T>(a: T) {
+    console.log(a);
+    return a;
+}
