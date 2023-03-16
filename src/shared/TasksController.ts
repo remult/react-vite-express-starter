@@ -1,9 +1,8 @@
-import { Allow, BackendMethod, remult } from "remult";
+import { Allow, BackendMethod, describeClass, remult } from "remult";
 import { Task } from "./Task";
 import { Roles } from "./Roles";
 
 export class TasksController {
-   @BackendMethod({ allowed: Roles.admin })
    static async setAll(completed: boolean) {
       const taskRepo = remult.repo(Task);
 
@@ -12,3 +11,7 @@ export class TasksController {
       }
    }
 }
+
+describeClass(TasksController, undefined, undefined, {
+   setAll: BackendMethod({ allowed: Roles.admin })
+})
